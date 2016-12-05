@@ -1,5 +1,5 @@
-DS2482_OneWire
-==============
+Arduino-DS2482-OneWire
+======================
 
 A OneWire library using the DS2482 I2C->1-Wire bridge. Released under GPL.
 
