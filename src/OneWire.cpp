@@ -104,7 +104,7 @@ void OneWire::setStrongPullup()
 
 void OneWire::clearStrongPullup()
 {
-	writeConfig(readConfig() & !DS2482_CONFIG_SPU);
+	writeConfig(readConfig() & ~DS2482_CONFIG_SPU);
 }
 
 // Churn until the busy bit in the status register is clear
