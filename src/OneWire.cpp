@@ -9,16 +9,14 @@ OneWire::OneWire()
 	// Pass 0b00, 0b01, 0b10 or 0b11
 	mAddress = 0x18;
 	mError = 0;
-	Wire.begin();
 }
 
 OneWire::OneWire(uint8_t address)
 {
 	// Address is determined by two pins on the DS2482 AD1/AD0
 	// Pass 0b00, 0b01, 0b10 or 0b11
-	mAddress = 0x18 | address;
+	mAddress = 0x18 | (address & 0x03);
 	mError = 0;
-	Wire.begin();
 }
 
 uint8_t OneWire::getAddress()
@@ -44,7 +42,7 @@ uint8_t OneWire::end()
 
 void OneWire::writeByte(uint8_t data)
 {
-	Wire.write(data); 
+	Wire.write(data);
 }
 
 uint8_t OneWire::readByte()
@@ -106,7 +104,7 @@ void OneWire::setStrongPullup()
 
 void OneWire::clearStrongPullup()
 {
-	writeConfig(readConfig() & !DS2482_CONFIG_SPU);
+	writeConfig(readConfig() & ~DS2482_CONFIG_SPU);
 }
 
 // Churn until the busy bit in the status register is clear
@@ -139,14 +137,14 @@ void OneWire::writeConfig(uint8_t config)
 	// Write the 4 bits and the complement 4 bits
 	writeByte(config | (~config)<<4);
 	end();
-	
+
 	// This should return the config bits without the complement
 	if (readByte() != config)
 		mError = DS2482_ERROR_CONFIG;
 }
 
 // Generates a 1-Wire reset/presence-detect cycle (Figure 4) at the 1-Wire line. The state
-// of the 1-Wire line is sampled at tSI and tMSP and the result is reported to the host 
+// of the 1-Wire line is sampled at tSI and tMSP and the result is reported to the host
 // processor through the Status Register, bits PPD and SD.
 uint8_t OneWire::wireReset()
 {
@@ -194,7 +192,7 @@ uint8_t OneWire::wireReadByte()
 }
 
 // Generates a single 1-Wire time slot with a bit value “V” as specified by the bit byte at the 1-Wire line
-// (see Table 2). A V value of 0b generates a write-zero time slot (Figure 5); a V value of 1b generates a 
+// (see Table 2). A V value of 0b generates a write-zero time slot (Figure 5); a V value of 1b generates a
 // write-one time slot, which also functions as a read-data time slot (Figure 6). In either case, the logic
 // level at the 1-Wire line is tested at tMSR and SBR is updated.
 void OneWire::wireWriteBit(uint8_t data, uint8_t power)
@@ -260,7 +258,7 @@ uint8_t OneWire::wireSearch(uint8_t *address)
 
 	for(uint8_t i=0;i<64;i++)
 	{
-		int searchByte = i / 8; 
+		int searchByte = i / 8;
 		int searchBit = 1 << i % 8;
 
 		if (i < searchLastDiscrepancy)
@@ -355,7 +353,7 @@ uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len)
 uint8_t OneWire::crc8(const uint8_t *addr, uint8_t len)
 {
 	uint8_t crc = 0;
-	
+
 	while (len--) {
 		uint8_t inbyte = *addr++;
 		for (uint8_t i = 8; i; i--) {
@@ -405,11 +403,11 @@ void OneWire::skip(void)
 	wireSkip();
 }
 
-// Write a byte. 
+// Write a byte.
 // Ignore the power bit
 void OneWire::write(uint8_t v, uint8_t power)
 {
-	wireWriteByte(v, power);	
+	wireWriteByte(v, power);
 }
 
 // Read a byte.
